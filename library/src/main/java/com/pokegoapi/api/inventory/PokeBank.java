@@ -47,7 +47,7 @@ import java.util.Map;
 
 public class PokeBank {
 	@Getter
-	private final List<Pokemon> pokemons = Collections.synchronizedList(new ArrayList<Pokemon>());
+	public final List<Pokemon> pokemons = Collections.synchronizedList(new ArrayList<Pokemon>());
 	@Getter
 	private final Object lock = new Object();
 	@Getter
@@ -164,10 +164,10 @@ public class PokeBank {
 		}
 		ServerRequest releaseRequest = new ServerRequest(RequestType.RELEASE_POKEMON, releaseBuilder.build());
 		ServerRequestEnvelope envelope = ServerRequestEnvelope.createCommons(releaseRequest, api);
-		Map<PokemonFamilyId, Integer> lastCandies = new HashMap<>(api.getInventories().getCandyjar().getCandies());
-		ServerResponse response = api.getRequestHandler().sendServerRequests(envelope);
+		Map<PokemonFamilyId, Integer> lastCandies = new HashMap<>(api.inventories.candyjar.getCandies());
+		ServerResponse response = api.requestHandler.sendServerRequests(envelope);
 		try {
-			ByteString inventoryData = response.get(RequestType.GET_HOLO_INVENTORY);
+			ByteString inventoryData = response.get(RequestType.GET_HOLOHOLO_INVENTORY);
 			GetHoloInventoryResponse inventoryResponse = GetHoloInventoryResponse.parseFrom(inventoryData);
 			ReleasePokemonResponse releaseResponse = ReleasePokemonResponse.parseFrom(releaseRequest.getData());
 			Map<PokemonFamilyId, Integer> candyCount = new HashMap<>();
@@ -176,7 +176,7 @@ public class PokeBank {
 					this.pokemons.removeAll(Arrays.asList(releasePokemon));
 				}
 				for (Pokemon pokemon : releasePokemon) {
-					api.getInventories().getPokebank().removePokemon(pokemon);
+					api.inventories.pokebank.removePokemon(pokemon);
 				}
 				List<InventoryItem> items = inventoryResponse.getInventoryDelta().getInventoryItemsList();
 				for (InventoryItem item : items) {
@@ -191,7 +191,7 @@ public class PokeBank {
 						candyCount.put(family, candy.getCandy() - lastCandy);
 					}
 				}
-				api.getInventories().updateInventories(inventoryResponse);
+				api.inventories.updateInventories(inventoryResponse);
 			}
 			return candyCount;
 		} catch (InvalidProtocolBufferException e) {
@@ -205,13 +205,13 @@ public class PokeBank {
 	 * @return the amount of pokemon in the PokeBank
 	 */
 	public int size() {
-		return pokemons.size() + api.getInventories().getHatchery().getEggs().size();
+		return pokemons.size() + api.inventories.hatchery.eggs.size();
 	}
 
 	/**
 	 * @return the maximum amount of pokemon this pokebank can store
 	 */
 	public int getMaxStorage() {
-		return api.getPlayerProfile().getPlayerData().getMaxPokemonStorage();
+		return api.playerProfile.getPlayerData().getMaxPokemonStorage();
 	}
 }

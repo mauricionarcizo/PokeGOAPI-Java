@@ -30,7 +30,7 @@ public class Path {
 	@Getter
 	private long totalTime;
 	@Getter
-	private boolean complete;
+	public boolean complete;
 
 	/**
 	 * Creates a Path with the given positions
@@ -79,8 +79,8 @@ public class Path {
 		double intermediate = (double) time / totalTime;
 		double latitude = source.getLatitude() + (destination.getLatitude() - source.getLatitude()) * intermediate;
 		double longitude = source.getLongitude() + (destination.getLongitude() - source.getLongitude()) * intermediate;
-		this.intermediate.setLatitude(latitude);
-		this.intermediate.setLongitude(longitude);
+		this.intermediate.latitude = latitude;
+		this.intermediate.longitude = longitude;
 		return this.intermediate;
 	}
 
